@@ -18,21 +18,44 @@ App = {
   },
 
   initContract: function() {
-    // TODO
-
-    return App.bindEvents();
+    $.getJSON('FifoClient.json', function(data) {
+      console.log(data);
+      App.contracts.FifoClient = TruffleContract(data);
+      App.contracts.FifoClient.setProvider(App.web3Provider);
+      return App.getPositions();
+    });
+    return null;
   },
 
-  bindEvents: function() {
-    $(document).on('click', '.btn-adopt', App.handleAdopt);
+  getPositions: function() {
+    App.contracts.FifoClient.deployed().then(function(instance) {
+      return instance.getQueue.call();
+    }).then(function(queue) {
+      console.log(queue);
+    }).catch(function(error) {
+      console.log(error.message);
+    });
   }
-
-  // TODO
 
 };
 
 $(function() {
   $(window).load(function() {
     App.init();
+  });
+
+  $('.btn-enqueue').click(function() {
+    var FifoClientInstance;
+    App.contracts.FifoClient.deployed().then(function(instance) {
+      FifoClientInstance = instance;
+    }).then(function() {
+      return FifoClientInstance.push(web3.eth.accounts[0]);
+    }).then(function() {
+      return FifoClientInstance.getQueueLength.call();
+    }).then(function(value) {
+      console.log(value);
+    }).catch(function(err) {
+      return console.log(err.message);
+    });
   });
 });

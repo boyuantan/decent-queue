@@ -1,5 +1,5 @@
-var Queue = artifacts.require("./Queue.sol");
+var FifoClient = artifacts.require("FifoClient");
 
 module.exports = function(deployer) {
-  deployer.deploy(Queue);
+  deployer.deploy(FifoClient);
 };

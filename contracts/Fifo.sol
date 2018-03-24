@@ -34,7 +34,7 @@ contract FIFO {
 
 contract FifoClient {
 
-    FIFO public jobQueue;
+    FIFO private jobQueue;
 
     event LogPush(address sender, uint jobNumber, address jobValue);
     event LogPop (address sender, uint jobNumber, address jobValue);
@@ -44,24 +44,26 @@ contract FifoClient {
         jobQueue = new FIFO();
     }
 
-    function push(address jobValue)
-        public
-        returns(uint jobNumber)
-    {
+    function push(address jobValue) public returns(uint jobNumber) {
         uint jobNum = jobQueue.push(msg.sender);
-        LogPush(msg.sender, jobNum, jobValue);
+        LogPush(msg.sender, jobNum, msg.sender);
         return jobNum;
     }
 
-    function pop()
-        public
-        returns(uint, address)
-    {
+    function pop() public returns(uint, address) {
         uint jobNum;
         address jobVal;
         (jobNum, jobVal) = jobQueue.pop();
         LogPop(msg.sender, jobNum, jobVal);
         return(jobNum, jobVal);
+    }
+
+    function getQueue() external returns (FIFO) {
+        return jobQueue;
+    }
+
+    function getQueueLength() external view returns (uint) {
+        return jobQueue.queueDepth();
     }
 
 }
