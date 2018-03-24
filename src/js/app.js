@@ -49,11 +49,12 @@ $(function() {
     App.contracts.FifoClient.deployed().then(function(instance) {
       FifoClientInstance = instance;
     }).then(function() {
-      return FifoClientInstance.push(web3.eth.accounts[0]);
+      return FifoClientInstance.push({from: web3.eth.accounts[0]});
     }).then(function() {
       return FifoClientInstance.getQueueLength.call();
     }).then(function(value) {
-      console.log(value);
+      const number = new web3.BigNumber(value);
+      $('.queue-length').text(number.toString());
     }).catch(function(err) {
       return console.log(err.message);
     });
