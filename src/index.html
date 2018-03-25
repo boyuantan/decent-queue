@@ -18,13 +18,41 @@
     <![endif]-->
   </head>
   <body>
-    <container>
-      <p class="queue-length">Unknown</p>
-      <button type="button" class="btn btn-default btn-enqueue">Enqueue</button>
-      <button type="button" class="btn btn-default btn-dequeue">Dequeue</button>
-    </container>
+    <div class="container">
+      <div class="jumbotron">
+        <h1 class="display-3">Go ahead, Queue Yourself.</h1>
+        <p class="lead">There's no better time than now!</p>
+        <button type="button" class="btn btn-primary btn-add">Add Queue</button>
+      </div>
+      <hr class="my-4">
+      <div class="queue-list row"></div>
+    </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript">
+      function enqueue(address) {
+        var mainAccount = web3.eth.accounts[0];
+        var FifoClientInstance;
+        for (var i = 0; i < App.contracts.FifoClients.length; i++) {
+          if (App.contracts.FifoClients[i][0] == address) {
+            App.contracts.FifoClients[i][1].deployed().then(function(instance) {
+              FifoClientInstance = instance;
+              return FifoClientInstance.push({ from: mainAccount });
+            }).then(function() {
+              return FifoClientInstance.getQueue.call();
+            }).then(function(fifo) {
+              console.log(fifo);
+            //   const number = new web3.BigNumber(value);
+            //   console.log(number.toString());
+            //   $('.queue-length').text(number.toString());
+            }).catch(function(err) {
+              return console.log(err.message);
+            });
+            break;
+          }
+        }
+      };
+    </script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
     <script src="js/web3.min.js"></script>
