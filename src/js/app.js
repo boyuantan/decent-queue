@@ -1,6 +1,8 @@
 App = {
   web3Provider: null,
-  contracts: {},
+  contracts: {
+    FifoClients: []
+  },
 
   init: function() {
     return App.initWeb3();
@@ -18,45 +20,63 @@ App = {
   },
 
   initContract: function() {
-    $.getJSON('FifoClient.json', function(data) {
+    $.getJSON('QueueManager.json', function(data) {
       console.log(data);
-      App.contracts.FifoClient = TruffleContract(data);
-      App.contracts.FifoClient.setProvider(App.web3Provider);
+      App.contracts.QueueManager = TruffleContract(data);
+      App.contracts.QueueManager.setProvider(App.web3Provider);
+    }).then(function () {
       return App.getPositions();
     });
+
     return null;
   },
 
   getPositions: function() {
-    App.contracts.FifoClient.deployed().then(function(instance) {
-      return instance.getQueue.call();
-    }).then(function(queue) {
-      console.log(queue);
-    }).catch(function(error) {
-      console.log(error.message);
+    var queues;
+    App.contracts.QueueManager.deployed().then(function(instance) {
+      return instance.getQueues.call();
+    }).then(function(_queues) {
+      queues = _queues;
+      console.log(queues);
+    }).catch(function(err) {
+      console.log(err.message);
     });
   }
 
 };
 
 $(function() {
+
+  var queueCount = 0;
+
   $(window).load(function() {
     App.init();
   });
 
-  $('.btn-enqueue').click(function() {
-    var FifoClientInstance;
-    App.contracts.FifoClient.deployed().then(function(instance) {
-      FifoClientInstance = instance;
-    }).then(function() {
-      return FifoClientInstance.push({from: web3.eth.accounts[0]});
-    }).then(function() {
-      return FifoClientInstance.getQueueLength.call();
-    }).then(function(value) {
-      const number = new web3.BigNumber(value);
-      $('.queue-length').text(number.toString());
+  $('.btn-add').click(function() {
+    var mainAccount = web3.eth.accounts[0];
+    var QueueManagerInstance;
+    App.contracts.QueueManager.deployed().then(function(instance) {
+      QueueManagerInstance = instance;
+      return QueueManagerInstance.createQueue(mainAccount);
+    }).then(function(_queue) {
+      console.log(_queue.tx);
+      $('.queue-list').append(
+        "<div class='col-sm'>" +
+        "<h4>Queue " + queueCount + "</h4>" +
+        "<button type='button' class='btn btn-default btn-enqueue' onclick='enqueue(" + _queue.tx + ")'>Enqueue</button>" +
+        "<button type='button' class='btn btn-default btn-dequeue'>Dequeue</button>" +
+        "</div>"
+      );
+      queueCount++;
+      $.getJSON('FifoClient.json', function(data) {
+        console.log(data);
+        var newFifoClient = TruffleContract(data, _queue.tx);
+        newFifoClient.setProvider(App.web3Provider);
+        App.contracts.FifoClients.push([_queue.tx, newFifoClient]);
+      });
     }).catch(function(err) {
-      return console.log(err.message);
+      console.log(err.message);
     });
   });
 });
