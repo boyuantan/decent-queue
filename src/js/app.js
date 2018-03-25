@@ -37,19 +37,20 @@ App = {
       return instance.getQueues.call();
     }).then(function(_queues) {
       for (var i = 0; i < _queues.length; i++) {
-        $('.queue-list').append(
-          "<div class='col-sm'>" +
-          "<h4>Queue " + queueCount + "</h4>" +
-          "<button type='button' class='btn btn-default btn-enqueue' onclick='enqueue(" + _queues[i] + ")'>Enqueue</button>" +
-          "<button type='button' class='btn btn-default btn-dequeue' onclick='dequeue(" + _queues[i] + ")''>Dequeue</button>" +
-          "</div>"
-        );
         queueCount++;
         $.getJSON('FifoClient.json', function(data) {
           console.log(data);
           var newFifoClient = TruffleContract(data, _queues[i]);
           newFifoClient.setProvider(App.web3Provider);
           App.contracts.FifoClients.push([_queues[i], newFifoClient]);
+        }).then(function() {
+          $('.queue-list').append(
+            "<div class='col-sm'>" +
+            "<h4>Queue " + queueCount + "</h4>" +
+            "<button type='button' class='btn btn-default btn-enqueue' onclick='enqueue(" + _queues[i] + ")'>Enqueue</button>" +
+            "<button type='button' class='btn btn-default btn-dequeue' onclick='dequeue(" + _queues[i] + ")''>Dequeue</button>" +
+            "</div>"
+          );
         });
       }
     }).catch(function(err) {

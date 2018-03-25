@@ -40,15 +40,20 @@
     <script type="text/javascript">
       var mainAccount = web3.eth.accounts[0];
       function enqueue(address) {
-        var FifoClientInstance;
         for (var i = 0; i < App.contracts.FifoClients.length; i++) {
           if (App.contracts.FifoClients[i][0] == address) {
-            App.contracts.FifoClients[i][1].deployed().then(function(instance) {
+            console.log("current I" + i);
+            var currentIndex = i;
+            console.log("Address: " + address);
+            var FifoClientInstance;
+            App.contracts.FifoClients[currentIndex][1].deployed().then(function(instance) {
               FifoClientInstance = instance;
-              return FifoClientInstance.push({ from: mainAccount,
+              console.log(instance);
+              return instance.push({ from: mainAccount,
                 value: web3.toWei(0.01, 'ether'),
                 gas: 100000  });
             }).then(function() {
+              // console.log(FifoClientInstance);
               return FifoClientInstance.queueLength.call()
             }).then(function(value) {
               console.log(value.toString());
