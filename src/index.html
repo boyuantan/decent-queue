@@ -9,42 +9,6 @@
 
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        *{
-            box-sizing: border-box;
-        }
-        .wrapper{
-            text-align: center;
-            display: flex;
-            width: 100%;
-        }
-        .column{
-            float: left;
-            display: table-cell;
-            flex: 1;
-            width: 50%;
-            padding: 10px;
-            background-color: #f1f1f1;
-            }
-        .row:after {
-            content: "";
-            display: table-cell;
-            width: 50%;
-            text-align: bottom;
-            }
-            table {
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-}
-
-td, th {
-    border: 1px solid #dddddd;
-    text-align: left;
-    padding: 8px;
-}
-
-    </style>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -56,24 +20,16 @@ td, th {
   <body>
     <div class="container">
       <div class="jumbotron">
-      <div class="wrapper">
-        <div class="row">
+        <div class="wrapper">
+          <div class="row">
             <div class="column" >
-            <h1 class="display-3">Go ahead, Queue Yourself.</h1>
-            <p class="lead">There's no better time than now!</p>
-            <input id="inpAdr" type="address" placeholder="Your Address Here"></input>
+              <h1 class="display-3">Go ahead, Queue Yourself.</h1>
+              <p class="lead">There's no better time than now!</p>
             </div>
             <div class="column" >
-            <table id="table1">
-            <tr>
-            <th>Queue Number</th>
-            <th>Address</th>
-            </tr>
-
-            </table>
-                <button type="submit" class="btn btn-primary btn-add" onclick="enqueue(inpAdr);setValues(getQueue(), getAddr());">Add Queue</button>
+                <button type="submit" class="btn btn-primary btn-add">Add Queue</button>
             </div>
-            </div>
+          </div>
         </div>
       </div>
       <hr class="my-4">
@@ -82,24 +38,21 @@ td, th {
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script type="text/javascript">
-    var mainAccount = web3.eth.accounts[0];
-    var queue;
+      var mainAccount = web3.eth.accounts[0];
       function enqueue(address) {
-
         var FifoClientInstance;
         for (var i = 0; i < App.contracts.FifoClients.length; i++) {
           if (App.contracts.FifoClients[i][0] == address) {
             App.contracts.FifoClients[i][1].deployed().then(function(instance) {
               FifoClientInstance = instance;
-              return FifoClientInstance.push({ from: mainAccount });
+              return FifoClientInstance.push({ from: mainAccount,
+                value: web3.toWei(0.01, 'ether'),
+                gas: 100000  });
             }).then(function() {
-              queue =  FifoClientInstance.getQueue.call()
-              return queue;
-            }).then(function(fifo) {
-              console.log(fifo);
-            //   const number = new web3.BigNumber(value);
-            //   console.log(number.toString());
-            //   $('.queue-length').text(number.toString());
+              return FifoClientInstance.queueLength.call()
+            }).then(function(value) {
+              console.log(value.toString());
+              alert("Added to Queue at position " + value.toString() + "!");
             }).catch(function(err) {
               return console.log(err.message);
             });
@@ -107,29 +60,29 @@ td, th {
           }
         }
       };
+      </script>
 
-      function getQueue(){
-        return queue;
-      }
-      function getAddr(){
-        return mainAccount;
-      }
-
-      function setValues(qnum, addr){
-        var oddNum = 0;
-        function addMember() {
-        var table = document.getElementById("table1");
-        if (oddNum%2 != 0)
-        {
-        table.innerHTML =  table.innerHTML + "<tr><th>{0}</th><th>{1}</th><tr>".format(qnum, addr);
-        oddNum++;
-        }
-        else {
-        table.innerHTML =  table.innerHTML + "<tr><th>{0}</th><th>{1}</th><tr>".format(qnum, addr);
-        oddNum++;
-        }
-        }
-    }
+      <script type="text/javascript">
+        function dequeue(address) {
+          var mainAccount = web3.eth.accounts[0];
+          var FifoClientInstance;
+          for (var i = 0; i < App.contracts.FifoClients.length; i++) {
+            if (App.contracts.FifoClients[i][0] == address) {
+              App.contracts.FifoClients[i][1].deployed().then(function(instance) {
+                FifoClientInstance = instance;
+                return FifoClientInstance.pop({ from: mainAccount });
+              }).then(function() {
+                return FifoClientInstance.queueLength.call();
+              }).then(function(value) {
+                alert("Removed from queue!");
+                console.log(value.toString());
+              }).catch(function(err) {
+                return console.log(err.message);
+              });
+              break;
+            }
+          }
+        };
     </script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
