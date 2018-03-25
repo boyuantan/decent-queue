@@ -1,7 +1,8 @@
 pragma solidity ^0.4.19;
 
-contract FIFO {
+import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 
+contract FIFO {
     address[] public fifoQueue;
     uint public cursorPosition;
 
@@ -33,9 +34,11 @@ contract FIFO {
 }
 
 contract FifoClient {
+    using SafeMath for uint256;
 
     FIFO public jobQueue;
     address public ownerAddress;
+    uint256 private standardAmount; //This is just my hack solution to storing value in each address
 
     event LogPush(address sender, uint jobNumber);
     event LogPop (address sender, uint jobNumber);
@@ -43,6 +46,7 @@ contract FifoClient {
     function FifoClient() public payable {
         jobQueue = new FIFO();
         ownerAddress = msg.sender;
+        standardAmount = 0;
     }
 
     function push()
@@ -51,6 +55,7 @@ contract FifoClient {
         returns(uint jobNumber)
     {
         uint jobNum = jobQueue.push();
+        standardAmount = msg.value;
         LogPush(msg.sender, jobNum);
         return jobNum;
     }
@@ -79,11 +84,11 @@ contract FifoClient {
     }
 
     function payoutToSeller() private {
-        ownerAddress.transfer(1);
+        ownerAddress.transfer(standardAmount);
     }
 
     function refundToBuyer(address _buyerAddress) private {
-        _buyerAddress.transfer(1);
+        _buyerAddress.transfer(standardAmount);
     }
 
     function getBalance(address _address) external view returns (uint){

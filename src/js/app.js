@@ -65,7 +65,7 @@ $(function() {
         "<div class='col-sm'>" +
         "<h4>Queue " + queueCount + "</h4>" +
         "<button type='button' class='btn btn-default btn-enqueue' onclick='enqueue(" + _queue.tx + ")'>Enqueue</button>" +
-        "<button type='button' class='btn btn-default btn-dequeue'>Dequeue</button>" +
+        "<button type='button' class='btn btn-default btn-dequeue' onclick='dequeue(" + _queue.tx + ")''>Dequeue</button>" +
         "</div>"
       );
       queueCount++;

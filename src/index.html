@@ -37,14 +37,13 @@
           if (App.contracts.FifoClients[i][0] == address) {
             App.contracts.FifoClients[i][1].deployed().then(function(instance) {
               FifoClientInstance = instance;
-              return FifoClientInstance.push({ from: mainAccount });
+              return FifoClientInstance.push({ from: mainAccount,
+                value: web3.toWei(0.01, 'ether'),
+                gas: 100000  });
             }).then(function() {
               return FifoClientInstance.getQueue.call();
             }).then(function(fifo) {
               console.log(fifo);
-            //   const number = new web3.BigNumber(value);
-            //   console.log(number.toString());
-            //   $('.queue-length').text(number.toString());
             }).catch(function(err) {
               return console.log(err.message);
             });
@@ -52,6 +51,28 @@
           }
         }
       };
+      </script>
+
+      <script type="text/javascript">
+        function dequeue(address) {
+          var mainAccount = web3.eth.accounts[0];
+          var FifoClientInstance;
+          for (var i = 0; i < App.contracts.FifoClients.length; i++) {
+            if (App.contracts.FifoClients[i][0] == address) {
+              App.contracts.FifoClients[i][1].deployed().then(function(instance) {
+                FifoClientInstance = instance;
+                return FifoClientInstance.pop({ from: mainAccount });
+              }).then(function() {
+                return FifoClientInstance.getQueue.call();
+              }).then(function(fifo) {
+                console.log(fifo);
+              }).catch(function(err) {
+                return console.log(err.message);
+              });
+              break;
+            }
+          }
+        };
     </script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
