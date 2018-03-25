@@ -53,11 +53,13 @@
                 value: web3.toWei(0.01, 'ether'),
                 gas: 100000  });
             }).then(function() {
-              // console.log(FifoClientInstance);
+              console.log(FifoClientInstance);
               return FifoClientInstance.queueLength.call()
             }).then(function(value) {
-              console.log(value.toString());
-              alert("Added to Queue at position " + value.toString() + "!");
+              const number = new web3.BigNumber(value);
+              console.log(number.toString());
+              // console.log(value.toString());
+              alert("Added to Queue at position " + number.toString() + "!");
             }).catch(function(err) {
               return console.log(err.message);
             });
