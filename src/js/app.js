@@ -53,21 +53,35 @@ $(function() {
     App.init();
   });
 
+  $('.btn-del').click(function() {
+	  var mainAccount = web3.eth.accounts[0];
+	  var QueueManagerInstance;
+  });
+  
+  
   $('.btn-add').click(function() {
     var mainAccount = web3.eth.accounts[0];
     var QueueManagerInstance;
+	String.prototype.format = function () {
+        var args = [].slice.call(arguments);
+        return this.replace(/(\{\d+\})/g, function (a){
+            return args[+(a.substr(1,a.length-2))||0];
+        });
+};
+	
     App.contracts.QueueManager.deployed().then(function(instance) {
       QueueManagerInstance = instance;
       return QueueManagerInstance.createQueue(mainAccount);
     }).then(function(_queue) {
       console.log(_queue.tx);
-      $('.queue-list').append(
-        "<div class='col-sm'>" +
-        "<h4>Queue " + queueCount + "</h4>" +
-        "<button type='button' class='btn btn-default btn-enqueue' onclick='enqueue(" + _queue.tx + ")'>Enqueue</button>" +
-        "<button type='button' class='btn btn-default btn-dequeue'>Dequeue</button>" +
-        "</div>"
-      );
+	  var table = document.getElementById("table1");
+	  var q = App.contracts.QueueManager.deployed().then(function(instance) {
+				return instance.getQueues.call().then(function(result){
+					table.innerHTML =  table.innerHTML + "<tr><th>{0}</th><th>{1}\n \nwith TX address\n{2}</th><tr>".format(queueCount, mainAccount, _queue.tx);	
+	console.log(q);
+				})
+				})
+	  
       queueCount++;
       $.getJSON('FifoClient.json', function(data) {
         console.log(data);
