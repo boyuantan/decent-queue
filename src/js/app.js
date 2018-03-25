@@ -37,12 +37,12 @@ App = {
       return instance.getQueues.call();
     }).then(function(_queues) {
       for (var i = 0; i < _queues.length; i++) {
-        queueCount++;
         $.getJSON('FifoClient.json', function(data) {
           console.log(data);
           var newFifoClient = TruffleContract(data, _queues[i]);
           newFifoClient.setProvider(App.web3Provider);
           App.contracts.FifoClients.push([_queues[i], newFifoClient]);
+          queueCount++;
         }).then(function() {
           $('.queue-list').append(
             "<div class='col-sm'>" +

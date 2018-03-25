@@ -42,9 +42,7 @@
       function enqueue(address) {
         for (var i = 0; i < App.contracts.FifoClients.length; i++) {
           if (App.contracts.FifoClients[i][0] == address) {
-            console.log("current I" + i);
             var currentIndex = i;
-            console.log("Address: " + address);
             var FifoClientInstance;
             App.contracts.FifoClients[currentIndex][1].deployed().then(function(instance) {
               FifoClientInstance = instance;
@@ -73,7 +71,8 @@
           var FifoClientInstance;
           for (var i = 0; i < App.contracts.FifoClients.length; i++) {
             if (App.contracts.FifoClients[i][0] == address) {
-              App.contracts.FifoClients[i][1].deployed().then(function(instance) {
+              var currentIndex = i;
+              App.contracts.FifoClients[currentIndex][1].deployed().then(function(instance) {
                 FifoClientInstance = instance;
                 return FifoClientInstance.pop({ from: mainAccount });
               }).then(function() {
